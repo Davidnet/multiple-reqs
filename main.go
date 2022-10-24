@@ -40,15 +40,17 @@ func dispatcher(reqChan chan *http.Request) {
 func workerPool(reqChan chan *http.Request, respChan chan Response) {
 	t := &http.Transport{}
 	for i := 0; i < max; i++ {
-		go worker(t, reqChan, respChan)
+		go worker(t, reqChan, respChan, i)
 	}
 }
 
 // Worker
-func worker(t *http.Transport, reqChan chan *http.Request, respChan chan Response) {
+func worker(t *http.Transport, reqChan chan *http.Request, respChan chan Response, frame int) {
 	for req := range reqChan {
+		log.Println("Sending request frame", frame)
 		resp, err := t.RoundTrip(req)
 		r := Response{resp, err}
+		log.Println("Got response frame", frame)
 		respChan <- r
 	}
 }
@@ -80,6 +82,7 @@ func consumer(respChan chan Response) (int64, int64) {
 
 func main() {
 	flag.Parse()
+	log.SetFlags(log.Ltime | log.Lmicroseconds)
 	runtime.GOMAXPROCS(runtime.NumCPU())
 	reqChan := make(chan *http.Request)
 	respChan := make(chan Response)
