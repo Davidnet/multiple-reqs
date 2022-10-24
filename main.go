@@ -28,7 +28,7 @@ type Response struct {
 func dispatcher(reqChan chan *http.Request) {
 	defer close(reqChan)
 	for i := 0; i < reqs; i++ {
-		req, err := http.NewRequest("GET", "http://host.containers.internal:8000/", nil)
+		req, err := http.NewRequest("POST", "http://host.containers.internal:8000/detect", nil)
 		if err != nil {
 			log.Println(err)
 		}
